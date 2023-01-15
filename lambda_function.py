@@ -18,7 +18,7 @@ def lambda_handler(event, context):
     
     responseMessage = ""
     try:
-        responseMessage = getResponse(messageText)
+        responseMessage = getResponse(messageText, fromText)
     except:
         responseMessage = "Internal error occured. My sincerest apologies."
     client = Client(account_sid, auth_token)

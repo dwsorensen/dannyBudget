@@ -6,5 +6,5 @@ textData = ""
 
 while textData != "stopsimulation":
 	textData = input("Message: ").lower()
-	response = getResponse(textData)
+	response = getResponse(textData, fromNum)
 	print(response)
