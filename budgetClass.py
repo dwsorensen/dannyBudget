@@ -6,7 +6,8 @@ defaultValues = {
 	"prompted": False,
 	"promptList": [],
 	"skipPrompt": False,
-	"keepSending": False
+	"keepSending": False,
+	"keepGoing": False
 }
 class Budget:
 	def __init__(self, budgetID, approved=False, activated =False):

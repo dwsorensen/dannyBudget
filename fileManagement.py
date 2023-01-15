@@ -5,8 +5,13 @@ import promptFunctions
 import boto3
 import botocore
 
-s3Bucket = 'userbudgets'
-session = boto3.Session(aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID"), aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"))
+s3Bucket = 'userdatapickles'
+#Check if we're running in lambda or on local computer
+if os.environ.get("AWS_LAMBDA_FUNCTION_NAME") is not None:
+	#Credentials automatically added by aws
+	session = boto3.Session()
+else:
+	session = boto3.Session(aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID"), aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"))
 
 s3 = session.resource('s3')
 
@@ -24,6 +29,14 @@ def loadBudget(userID):
 			raise
 
 	return budget
+
+def listBudgets():
+	global s3
+	bucket = s3.Bucket(s3Bucket)
+	idList = []
+	for obj in bucket.objects.all():
+		idList.append(obj.key)
+	return idList
 
 def checkStatus(budget):
 	if not budget.get("approved"):

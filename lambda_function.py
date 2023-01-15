@@ -15,11 +15,13 @@ def lambda_handler(event, context):
 
     account_sid = os.environ['sid']
     auth_token = os.environ['token']
-    
-    responseMessage = ""
-    try:
-        responseMessage = getResponse(messageText, fromText)
-    except:
-        responseMessage = "Internal error occured. My sincerest apologies."
-    client = Client(account_sid, auth_token)
-    message = client.messages.create(body=responseMessage,from_='+' + os.environ['twilioNumber'],to='+' + fromText)
+    keepGoing = True
+    while keepGoing:
+        try:
+            [responseMessage, keepGoing] = getResponse(messageText, fromText)
+        except Exception as e:
+            responseMessage = "Internal error occured. My sincerest apologies."
+            keepGoing = False
+            print(repr(e))
+        client = Client(account_sid, auth_token)
+        message = client.messages.create(body=responseMessage,from_='+' + os.environ['twilioNumber'],to='+' + fromText)

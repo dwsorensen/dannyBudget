@@ -22,11 +22,24 @@ def approvalMessage(budget):
 	return budget
 
 def adminHome(budget):
-	budget.set("toPrint","You've made it to the admin panel. You've been approved. Make a selection: 1 - Approve a user; 2 - Remove user approval; 3 - Back to home")
+	budget.set("toPrint","You've made it to the admin panel. You've been approved. Make a selection: 1 - List Users; 2 - Approve a user; 3 - Remove user approval; 4 - Back to home")
 	budget.set("approved", True)
 	budget.set("prompted",True)
-	budget.set("promptList",["userApproval","approvalRemoval", "start"])
+	budget.set("promptList",["listUsers","userApproval","approvalRemoval", "start"])
 	return budget
+
+def listUsers(budget):
+	userList = fileManagement.listBudgets()
+	outputFile = "Users: "
+	for i in userList:
+		outputFile = outputFile + i + ","
+	outputFile = outputFile[:-1]
+	outputFile = outputFile + "."
+	budget.set("toPrint",outputFile)
+	budget.set("currentPrompt","adminHome")
+	budget.set("keepGoing",True)
+	return budget
+
 
 def userApproval(budget):
 	budget.set("toPrint","Enter user ID / number to be approved.")
@@ -42,6 +55,7 @@ def userApproval1(budget):
 	fileManagement.saveBudget(approvedBudget)
 	budget.set("toPrint","User approved.")
 	budget.set("currentPrompt","start")
+	budget.set("keepGoing",True)
 	return budget
 
 def approvalRemoval(budget):
@@ -58,4 +72,5 @@ def approvalRemoval1(budget):
 	fileManagement.saveBudget(removedBudget)
 	budget.set("toPrint","User removed.")
 	budget.set("currentPrompt","start")
+	budget.set("keepGoing",True)
 	return budget
