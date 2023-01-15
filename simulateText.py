@@ -4,7 +4,7 @@ fromNum = input("Number to text from: ")
 
 textData = ""
 
-while textData != "stopsimulation":
+while textData not in ["stopsimulation", "exit()"]:
 	textData = input("Message: ").lower()
 	response = getResponse(textData, fromNum)
 	print("")

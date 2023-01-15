@@ -22,10 +22,10 @@ def approvalMessage(budget):
 	return budget
 
 def adminHome(budget):
-	budget.set("toPrint","You've made it to the admin panel. You've been approved. Make a selection: 1 - Approve a user; 2 - Back to home")
+	budget.set("toPrint","You've made it to the admin panel. You've been approved. Make a selection: 1 - Approve a user; 2 - Remove user approval; 3 - Back to home")
 	budget.set("approved", True)
 	budget.set("prompted",True)
-	budget.set("promptList",["userApproval", "start"])
+	budget.set("promptList",["userApproval","approvalRemoval", "start"])
 	return budget
 
 def userApproval(budget):
@@ -38,9 +38,24 @@ def userApproval1(budget):
 	lastMessage = messages[len(messages)-1]
 	approvedBudget = fileManagement.loadBudget(lastMessage)
 	approvedBudget.set("approved",True)
+	approvedBudget.set("currentPrompt","start")
 	fileManagement.saveBudget(approvedBudget)
-	print("Approved budget " + approvedBudget.get("budgetID"))
 	budget.set("toPrint","User approved.")
 	budget.set("currentPrompt","start")
-	budget.set("Keep sending", True)
+	return budget
+
+def approvalRemoval(budget):
+	budget.set("toPrint","Enter user ID / number to be removed.")
+	budget.set("currentPrompt","approvalRemoval1")
+	return budget
+
+def approvalRemoval1(budget):
+	messages = budget.get("messages")
+	lastMessage = messages[len(messages)-1]
+	removedBudget = fileManagement.loadBudget(lastMessage)
+	removedBudget.set("approved",False)
+	removedBudget.set("currentPrompt","start")
+	fileManagement.saveBudget(removedBudget)
+	budget.set("toPrint","User removed.")
+	budget.set("currentPrompt","start")
 	return budget

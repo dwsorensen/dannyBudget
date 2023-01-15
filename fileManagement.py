@@ -2,25 +2,27 @@ import os
 import pickle
 from budgetClass import Budget
 import promptFunctions
+import boto3
+import botocore
 
-filePath = "./userFiles"
+s3Bucket = 'userbudgets'
+session = boto3.Session(aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID"), aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"))
+
+s3 = session.resource('s3')
 
 def loadBudget(userID):
-	global filePath
-	if not os.path.exists(filePath):
-		os.mkdir(filePath)
+	global s3, s3Bucket
 
-	currentFiles = os.listdir('./userFiles')
-	fileName = userID + ".p"
+	try:
+		budgetObject = s3.Object(s3Bucket,userID)
+		budget = pickle.loads(budgetObject.get()['Body'].read())
+	except botocore.exceptions.ClientError as e:
+		if e.response['Error']['Code'] == "NoSuchKey":
+			budget = Budget(userID)
+			saveBudget(budget)
+		else:
+			raise
 
-	if fileName in currentFiles:
-		file = open(filePath + '/' + fileName, 'rb')
-		budget = pickle.load(file)
-		file.close()
-	else:
-		budget = Budget(userID)
-		budget.set("currentPrompt", "start")
-		saveBudget(budget)
 	return budget
 
 def checkStatus(budget):
@@ -28,17 +30,12 @@ def checkStatus(budget):
 		budget.set("currentPrompt","approvalMessage")
 	messages = budget.get("messages")
 	lastMessage = messages[len(messages)-1]
-	print("lastMessage - " + lastMessage)
 	if lastMessage == "secretpassword":
-		print("Password - entered")
 		budget.set("currentPrompt", "adminHome")
 
 	if budget.get("prompted"):
-		print("You've been prompted boyo")
 		try:
 			intSelect = int(lastMessage) - 1
-			print("promptLIst  - " + str(budget.get("promptList")))
-			print("budget.get(promptlist)[intSelect]" + str(budget.get("promptList")[intSelect]))
 			budget.set("currentPrompt",budget.get("promptList")[intSelect])
 			budget.set("prompted",False)
 		except:
@@ -48,11 +45,9 @@ def checkStatus(budget):
 	return budget
 
 def saveBudget(budget):
-	global filePath
-	fileName = budget.get("budgetID") + ".p"
-	file = open(filePath + '/' + fileName, "wb")
-	pickle.dump(budget, file)
-	file.close()
+	global s3, s3Bucket
+	pickle_byte_obj = pickle.dumps(budget)
+	s3.Object(s3Bucket,budget.get("budgetID")).put(Body = pickle_byte_obj)
 
 if __name__ == '__main__':
-	loadFile("12345")
+	loadBudget("12345")
