@@ -40,7 +40,6 @@ def listUsers(budget):
 	budget.set("keepGoing",True)
 	return budget
 
-
 def userApproval(budget):
 	budget.set("toPrint","Enter user ID / number to be approved.")
 	budget.set("currentPrompt","userApproval1")
